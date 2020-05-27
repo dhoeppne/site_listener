@@ -75,7 +75,7 @@ def email(website, deal, pic):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
 def main():
-    driver = webdriver.PhantomJS(executable_path="./node_modules/phantomjs-prebuilt/bin/phantomjs", service_log_path='./ghostdriver.log') # or add to your PATH
+    driver = webdriver.PhantomJS(executable_path="./node_modules/phantomjs-prebuilt/bin/phantomjs", service_log_path=os.path.devnull) # or add to your PATH
     driver.set_window_size(1024, 768) # optional
 
     with open("sites.csv") as file:
