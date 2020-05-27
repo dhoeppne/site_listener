@@ -16,9 +16,11 @@ def email(website, deal, pic):
     smtp_server = "smtp.gmail.com"
     sender_email = "devdavid968@gmail.com"  # Enter your address
     receiver_email = "noshameever@gmail.com"  # Enter receiver address
-    password = os.environ['EMAILPASSWORD']
+    password = ""
     siteName = website.split(".")[1]
 
+    with open("passcode.txt", "r") as file:
+        password = file.readline()
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "DEAL " + siteName + " " + deal
@@ -73,8 +75,6 @@ def email(website, deal, pic):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
 def main():
-
-
     while True:
         driver = webdriver.PhantomJS(executable_path="./node_modules/phantomjs-prebuilt/bin/phantomjs") # or add to your PATH
         driver.set_window_size(1024, 768) # optional
