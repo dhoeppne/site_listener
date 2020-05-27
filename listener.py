@@ -62,7 +62,7 @@ def email(website, deal, pic):
     # Add header as key/value pair to attachment part
     part.add_header(
         "Content-Disposition",
-        f"attachment; filename= {filename}",
+        "attachment; filename= %s" % filename,
     )
 
     # Add attachment to message and convert message to string

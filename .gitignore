@@ -3,4 +3,5 @@ phantomjs-2.1.1-linux-x86_64
 node_modules/
 *deal.png
 ghostdriver.log
+.DS_Store
 passcode.txt
