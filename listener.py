@@ -1,5 +1,6 @@
 from selenium import webdriver
 import smtplib, ssl, time, email, os, csv
+from sys import platform
 from email import encoders
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -75,7 +76,12 @@ def email(website, deal, pic):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
 def main():
-    driver = webdriver.PhantomJS(executable_path="./node_modules/phantomjs-prebuilt/bin/phantomjs", service_log_path=os.path.devnull) # or add to your PATH
+    if platform == "darwin":
+        path = "/usr/local/bin/phantomjs"
+    else:
+        path = "./node_modules/phantomjs-prebuilt/bin/phantomjs"
+
+    driver = webdriver.PhantomJS(executable_path=path, service_log_path=os.path.devnull) # or add to your PATH
     driver.set_window_size(1024, 768) # optional
 
     with open("sites.csv") as file:
