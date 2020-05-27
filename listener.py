@@ -75,36 +75,34 @@ def email(website, deal, pic):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
 def main():
-    while True:
-        driver = webdriver.PhantomJS(executable_path="./node_modules/phantomjs-prebuilt/bin/phantomjs") # or add to your PATH
-        driver.set_window_size(1024, 768) # optional
+    driver = webdriver.PhantomJS(executable_path="./node_modules/phantomjs-prebuilt/bin/phantomjs") # or add to your PATH
+    driver.set_window_size(1024, 768) # optional
 
-        with open("sites.csv") as file:
-            row_count = sum(1 for row in file) - 1
-            name = [""] * row_count
+    with open("sites.csv") as file:
+        row_count = sum(1 for row in file) - 1
+        name = [""] * row_count
 
 
-        with open("sites.csv") as file:
-            reader = csv.reader(file)
-            next(reader)  # Skip header row
-            row = 0
+    with open("sites.csv") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header row
+        row = 0
 
-            for site, css_selector in reader:
-                website = site
+        for site, css_selector in reader:
+            website = site
 
-                returnedName = listener(driver, website, css_selector)
-                picName = website.split(".")[1] + 'deal.png'
+            returnedName = listener(driver, website, css_selector)
+            picName = website.split(".")[1] + 'deal.png'
 
-                if returnedName.text and name[row] != returnedName.text:
-                    driver.save_screenshot(picName) # save a screenshot to disk
+            if returnedName.text and name[row] != returnedName.text:
+                driver.save_screenshot(picName) # save a screenshot to disk
 
-                    email(website, returnedName.text, picName)
+                email(website, returnedName.text, picName)
 
-                name[row] = returnedName
-                row += 1
+            name[row] = returnedName
+            row += 1
 
-        driver.close()
-        time.sleep(600)
+    driver.close()
 
 
 main()
