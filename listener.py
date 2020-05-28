@@ -69,24 +69,12 @@ def email(website, deal, pic):
         # Add file as application/octet-stream
         # Email client can usually download this automatically as attachment
         msgImage = MIMEImage(attachment.read())
-        part = MIMEBase("application", "octet-stream")
-        part.set_payload(attachment.read())
 
     # Define the image's ID as referenced above
     msgImage.add_header('Content-ID', '<image1>')
     message.attach(msgImage)
 
-    # Encode file in ASCII characters to send by email
-    encoders.encode_base64(part)
-
-    # Add header as key/value pair to attachment part
-    part.add_header(
-        "Content-Disposition",
-        "attachment; filename= %s" % pic,
-    )
-
-    # Add attachment to message and convert message to string
-    message.attach(part)
+    # Convert message to string
     text = message.as_string()
 
     context = ssl.create_default_context()
