@@ -132,7 +132,7 @@ def main():
     if needs_update:
         update_csv(update)
 
-    driver.close()
+    driver.quit()
     print("finished deal collection")
 
 
