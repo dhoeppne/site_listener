@@ -11,16 +11,23 @@ from datetime import datetime
 
 def listener(driver, url, selector):
     print("visiting " + url)
-    driver.get(url)
-    if url == "https://www.cardhaus.com/":
-        img = driver.find_element(By.CSS_SELECTOR, "img[title='daily-deal-generic-rectangle.png']")
-        href = img.find_element_by_xpath('..').click()
-        location = driver.current_url
+    try:
+        driver.get(url)
+        navigated = True
+    except:
+        print("unable to navigate to site")
+
+    location = url
+
+    if navigated:
+        if url == "https://www.cardhaus.com/":
+            img = driver.find_element(By.CSS_SELECTOR, "img[title='daily-deal-generic-rectangle.png']")
+            href = img.find_element_by_xpath('..').click()
+            location = driver.current_url
 
         deal = driver.find_element_by_css_selector(selector).text
     else:
-        deal = driver.find_element_by_css_selector(selector).text
-        location = url
+        deal = "Site is down"
 
     return deal, location
 
