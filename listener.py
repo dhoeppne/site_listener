@@ -8,6 +8,7 @@ from email.mime.base import MIMEBase
 from selenium.webdriver.common.by import By
 
 def listener(driver, url, selector):
+    print("visiting " + url)
     driver.get(url)
     if url == "https://www.cardhaus.com/":
         img = driver.find_element(By.CSS_SELECTOR, "img[title='daily-deal-generic-rectangle.png']")
@@ -23,6 +24,7 @@ def listener(driver, url, selector):
 
 
 def email(website, deal, pic):
+    print("emailing for " + website)
 
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
@@ -87,12 +89,14 @@ def email(website, deal, pic):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
 def update_csv(update):
+    print("updating csv")
     with open("sites.csv", "w+") as file:
         writer = csv.writer(file, delimiter= ",")
         for line in update:
             writer.writerow(line)
 
 def main():
+    print("starting deal collection")
     if platform == "darwin":
         path = "/usr/local/bin/phantomjs"
     else:
@@ -129,6 +133,7 @@ def main():
         update_csv(update)
 
     driver.close()
+    print("finished deal collection")
 
 
 main()
