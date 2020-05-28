@@ -5,10 +5,21 @@ from email import encoders
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
+from selenium.webdriver.common.by import By
 
 def listener(driver, url, selector):
     driver.get(url)
-    return driver.find_element_by_css_selector(selector)
+    if url == "https://www.cardhaus.com/":
+        img = driver.find_element(By.CSS_SELECTOR, "img[title='daily-deal-generic-rectangle.png']")
+        href = img.find_element_by_xpath('..').click()
+        location = driver.current_url
+
+        deal = driver.find_element_by_css_selector(selector).text
+    else:
+        deal = driver.find_element_by_css_selector(selector).text
+        location = url
+
+    return deal, location
 
 
 def email(website, deal, pic):
@@ -75,6 +86,12 @@ def email(website, deal, pic):
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 
+def update_csv(update):
+    with open("sites.csv", "w+") as file:
+        writer = csv.writer(file, delimiter= ",")
+        for line in update:
+            writer.writerow(line)
+
 def main():
     if platform == "darwin":
         path = "/usr/local/bin/phantomjs"
@@ -84,29 +101,32 @@ def main():
     driver = webdriver.PhantomJS(executable_path=path, service_log_path=os.path.devnull) # or add to your PATH
     driver.set_window_size(1024, 768) # optional
 
-    with open("sites.csv") as file:
-        row_count = sum(1 for row in file) - 1
-        name = [""] * row_count
-
+    update = [["site", "css_selector", "lastdeal"]]
+    needs_update = False
 
     with open("sites.csv") as file:
         reader = csv.reader(file)
         next(reader)  # Skip header row
-        row = 0
+        row = 1 # skip header in update
 
-        for site, css_selector in reader:
-            website = site
+        for site, css_selector, lastdeal in reader:
+            update.append([site, css_selector, lastdeal])
 
-            returnedName = listener(driver, website, css_selector)
-            picName = website.split(".")[1] + 'deal.png'
+            returnedName, location = listener(driver, site, css_selector)
+            picName = location.split(".")[1] + 'deal.png'
 
-            if returnedName.text and name[row] != returnedName.text:
+            if returnedName and lastdeal != returnedName:
+                needs_update = True
                 driver.save_screenshot(picName) # save a screenshot to disk
+                update[row][2] = returnedName # update current deal's name
 
-                email(website, returnedName.text, picName)
+                print("Sending email")
+                email(location, returnedName, picName)
 
-            name[row] = returnedName
             row += 1
+
+    if needs_update:
+        update_csv(update)
 
     driver.close()
 
