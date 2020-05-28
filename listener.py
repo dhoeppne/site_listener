@@ -3,6 +3,7 @@ import smtplib, ssl, time, email, os, csv
 from sys import platform
 from email import encoders
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from selenium.webdriver.common.by import By
@@ -51,6 +52,7 @@ def email(website, deal, pic):
         <p>Deal of the day at
         <a href="{}">{}</a>
         is {}
+        <br><img src="cid:image1"><br>
         </p>
     </body>
     </html>
@@ -62,14 +64,17 @@ def email(website, deal, pic):
     message.attach(part1)
     message.attach(part2)
 
-    filename = pic  # In same directory as script
-
     # Open PDF file in binary mode
-    with open(filename, "rb") as attachment:
+    with open(pic, "rb") as attachment:
         # Add file as application/octet-stream
         # Email client can usually download this automatically as attachment
+        msgImage = MIMEImage(attachment.read())
         part = MIMEBase("application", "octet-stream")
         part.set_payload(attachment.read())
+
+    # Define the image's ID as referenced above
+    msgImage.add_header('Content-ID', '<image1>')
+    message.attach(msgImage)
 
     # Encode file in ASCII characters to send by email
     encoders.encode_base64(part)
@@ -77,7 +82,7 @@ def email(website, deal, pic):
     # Add header as key/value pair to attachment part
     part.add_header(
         "Content-Disposition",
-        "attachment; filename= %s" % filename,
+        "attachment; filename= %s" % pic,
     )
 
     # Add attachment to message and convert message to string
