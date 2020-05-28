@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from selenium.webdriver.common.by import By
+from datetime import datetime
 
 def listener(driver, url, selector):
     print("visiting " + url)
@@ -96,7 +97,10 @@ def update_csv(update):
             writer.writerow(line)
 
 def main():
-    print("starting deal collection")
+    now = datetime.now()
+    current_time = now.strftime("%d/%m/%Y %H:%M:%S")
+    print("starting deal collection at " + current_time)
+
     if platform == "darwin":
         path = "/usr/local/bin/phantomjs"
     else:
@@ -132,7 +136,7 @@ def main():
     if needs_update:
         update_csv(update)
 
-    driver.quit()
+    driver.quit ()
     print("finished deal collection")
 
 
