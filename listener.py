@@ -1,5 +1,5 @@
 from selenium import webdriver
-import smtplib, ssl, time, email, os, csv
+import smtplib, ssl, time, email, os, csv, json
 from sys import platform
 from email import encoders
 from email.mime.text import MIMEText
@@ -36,13 +36,15 @@ def listener(driver, url, selector):
             location = driver.current_url
 
         deal = driver.find_element_by_css_selector(selector).text
+        deal = deal.replace("(Deal of the Day)", "")
+        deal = deal.replace("(Add to cart to see price)", "")
     else:
         deal = "Site is down"
 
     return deal, location
 
 
-def email(website, deal, pic):
+def email(website, deal, pic, rating, bgg_url):
     print("emailing for " + website)
 
     port = 465  # For SSL
@@ -69,11 +71,13 @@ def email(website, deal, pic):
         <p>Deal of the day at
         <a href="{}">{}</a>
         is {}
+        <a href="{}">Link to bgg page</a>. {} has a rating of {}
+        <br></br>
         <br><a href="{}"><img src="cid:image1"></a><br>
         </p>
     </body>
     </html>
-    """.format(website, siteName, deal, website)
+    """.format(website, siteName, deal, bgg_url, deal, rating, website)
 
     part1 = MIMEText(text, "plain")
     part2 = MIMEText(html, "html")
@@ -105,6 +109,19 @@ def update_csv(update):
         writer = csv.writer(file, delimiter= ",")
         for line in update:
             writer.writerow(line)
+
+def bgg_lookup(name):
+    filename = "../bgg_scraper/dev_database/" + name + ".json"
+    try:
+        with open(filename, 'r') as file:
+            data = json.load(file)
+            rating = data["bggRating"]
+            gameId = data["gameId"]
+    except FileNotFoundError:
+        rating = "Rating not found"
+        gameId = "1"
+
+    return rating, "https://boardgamegeek.com/boardgame/" + str(gameId)
 
 def main():
     now = datetime.now()
@@ -138,8 +155,11 @@ def main():
                 driver.save_screenshot(picName) # save a screenshot to disk
                 update[row][2] = returnedName # update current deal's name
 
+                # look up bgg data
+                rating, bgg_url = bgg_lookup(returnedName)
+
                 print("Sending email")
-                email(location, returnedName, picName)
+                email(location, returnedName, picName, rating, bgg_url)
 
             row += 1
 
