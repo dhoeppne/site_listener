@@ -24,6 +24,16 @@ def listener(driver, url, selector):
             img = driver.find_element(By.CSS_SELECTOR, "img[title='daily-deal-generic-rectangle.png']")
             href = img.find_element_by_xpath('..').click()
             location = driver.current_url
+        elif url == "https://www.coolstuffinc.com/page/1175":
+            sale_list = driver.find_elements_by_class_name("breadcrumb-trail")
+            href="https://www.coolstuffinc.com/p/294149" # default page is Montmartre
+
+            for sale in sale_list:
+                if "Board Games" in sale.text:
+                    href = sale.find_element_by_xpath("../../../../div[1]/a").get_attribute("href")
+
+            driver.get(href)
+            location = driver.current_url
 
         deal = driver.find_element_by_css_selector(selector).text
     else:
@@ -59,11 +69,11 @@ def email(website, deal, pic):
         <p>Deal of the day at
         <a href="{}">{}</a>
         is {}
-        <br><img src="cid:image1"><br>
+        <br><a href="{}"><img src="cid:image1"></a><br>
         </p>
     </body>
     </html>
-    """.format(website, siteName, deal)
+    """.format(website, siteName, deal, website)
 
     part1 = MIMEText(text, "plain")
     part2 = MIMEText(html, "html")

@@ -1,4 +1,5 @@
 site,css_selector,lastdeal
-https://www.cardhaus.com/,h1.productView-title,Tapestry
-https://www.miniaturemarket.com/dailydeal/,div.product-name,Imperius
-https://www.gamenerdz.com/deal-of-the-day,h4.card-title,Santa Maria (Deal of the Day)
+https://www.cardhaus.com/,h1.productView-title,"Warhammer 40,000: Conquest - Deadly Salvage"
+https://www.miniaturemarket.com/dailydeal/,div.product-name,DC Universe Miniatures Game: Lex Luthor (Classic Costume)
+https://www.gamenerdz.com/deal-of-the-day,h4.card-title,Exit: The Secret Lab (Deal of the Day)
+https://www.coolstuffinc.com/page/1175,h1.product-name,Montmartre
