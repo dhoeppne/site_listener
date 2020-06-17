@@ -1,5 +1,5 @@
 from selenium import webdriver
-import smtplib, ssl, time, email, os, csv, json
+import smtplib, ssl, time, email, os, csv, json, difflib
 from sys import platform
 from email import encoders
 from email.mime.text import MIMEText
@@ -111,15 +111,23 @@ def update_csv(update):
             writer.writerow(line)
 
 def bgg_lookup(name):
-    filename = "../bgg_scraper/dev_database/" + name + ".json"
-    try:
-        with open(filename, 'r') as file:
-            data = json.load(file)
-            rating = data["bggRating"]
-            gameId = data["gameId"]
-    except FileNotFoundError:
-        rating = "Rating not found"
-        gameId = "1"
+    corpusname = "../bgg_scraper/dev_database/__corpus__.json"
+
+    with open(corpusname, 'r') as corpus:
+            rating = "rating not found"
+            gameId = 1
+
+            data = json.load(corpus)
+            games = data.keys()
+            match = difflib.get_close_matches(name, games)[0]
+
+            if len(match) > 0:
+                index = data[match]
+
+                with open("../bgg_scraper/dev_database/" + str(index) + ".json") as game:
+                    game_data = json.load(game)
+                    rating = game_data["bggRating"]
+                    gameId = game_data["gameId"]
 
     return rating, "https://boardgamegeek.com/boardgame/" + str(gameId)
 
@@ -149,6 +157,8 @@ def main():
 
             returnedName, location = listener(driver, site, css_selector)
             picName = location.split(".")[1] + 'deal.png'
+
+            bgg_lookup(returnedName)
 
             if returnedName and lastdeal != returnedName:
                 needs_update = True
