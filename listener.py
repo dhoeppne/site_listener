@@ -130,7 +130,7 @@ def bgg_lookup(name):
                         rating = game_data["bggRating"]
                         gameId = game_data["gameId"]
 
-    return rating, "https://boardgamegeek.com/boardgame/" + str(gameId)
+    return rating, "https://boardgamegeek.com/boardgame/" + str(gameId) # THIS IS THE CURSED LINE
 
 def main():
     now = datetime.now()
