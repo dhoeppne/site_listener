@@ -111,23 +111,24 @@ def update_csv(update):
             writer.writerow(line)
 
 def bgg_lookup(name):
-    corpusname = "../bgg_scraper/dev_database/__corpus__.json"
+    corpusname = "/Volumes/Storage/bgg_games/__corpus__.json"
 
-    with open(corpusname, 'r') as corpus:
-            rating = "rating not found"
-            gameId = 1
+    rating = "rating not found"
+    gameId = 1
 
-            data = json.load(corpus)
-            games = data.keys()
-            match = difflib.get_close_matches(name, games)[0]
+    try:
+        with open(corpusname, 'r') as corpus:
+                data = json.load(corpus)
+                games = data.keys()
+                match = difflib.get_close_matches(name, games)[0]
 
-            if len(match) > 0:
-                index = data[match]
+                if len(match) > 0:
+                    index = data[match]
 
-                with open("../bgg_scraper/dev_database/" + str(index) + ".json") as game:
-                    game_data = json.load(game)
-                    rating = game_data["bggRating"]
-                    gameId = game_data["gameId"]
+                    with open("/Volumes/Storage/bgg_games/" + str(index) + ".json") as game:
+                        game_data = json.load(game)
+                        rating = game_data["bggRating"]
+                        gameId = game_data["gameId"]
 
     return rating, "https://boardgamegeek.com/boardgame/" + str(gameId)
 
