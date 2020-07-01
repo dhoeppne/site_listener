@@ -48,14 +48,14 @@ def email_deal(website, deal, pic, rating, bgg_url):
 
     port = 465 # For SSL
     smtp_server = "smtp.gmail.com"
-    sender_email = "devdavid968gmail.com"
+    sender_email = "devdavid968@gmail.com"
     receiver_email = "noshameever@gmail.com"
     password = ""
     siteName = website.split(".")[1]
 
     with open("passcode.txt", "r") as file:
         password = file.readline()
-    
+
     message = MIMEMultipart("alternative")
     message["Subject"] = "DEAL" + siteName + " " + deal
     message["From"] = sender_email
@@ -93,7 +93,7 @@ def email_deal(website, deal, pic, rating, bgg_url):
     text = message.as_string()
 
     context = ssl.create_default_context()
-    with smtblib.SMTP_SSL(smtp_server, port, context=context) as server:
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 
