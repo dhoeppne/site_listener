@@ -16,7 +16,7 @@ def listener(driver, url, selector):
         navigated = True
     except:
         print("unable to navigate to site")
-
+    
     location = url
 
     if navigated:
@@ -26,57 +26,56 @@ def listener(driver, url, selector):
             location = driver.current_url
         elif url == "https://www.coolstuffinc.com/page/1175":
             sale_list = driver.find_elements_by_class_name("breadcrumb-trail")
-            href="https://www.coolstuffinc.com/p/294149" # default page is Montmartre
+            href = "https://www.coolstruffinc.com/p/294149" # default page is Montmartre
 
             for sale in sale_list:
                 if "Board Games" in sale.text:
                     href = sale.find_element_by_xpath("../../../../div[1]/a").get_attribute("href")
-
+            
             driver.get(href)
             location = driver.current_url
-
+        
         deal = driver.find_element_by_css_selector(selector).text
-        deal = deal.replace("(Deal of the Day)", "")
+        deal = deal.replace("(Deal of hte Day)", "")
         deal = deal.replace("(Add to cart to see price)", "")
     else:
         deal = "Site is down"
 
     return deal, location
 
+def email_deal(website, deal, pic, rating, bgg_url):
+    print("emailing for" + website)
 
-def email(website, deal, pic, rating, bgg_url):
-    print("emailing for " + website)
-
-    port = 465  # For SSL
+    port = 465 # For SSL
     smtp_server = "smtp.gmail.com"
-    sender_email = "devdavid968@gmail.com"  # Enter your address
-    receiver_email = "noshameever@gmail.com"  # Enter receiver address
+    sender_email = "devdavid968gmail.com"
+    receiver_email = "noshameever@gmail.com"
     password = ""
     siteName = website.split(".")[1]
 
     with open("passcode.txt", "r") as file:
         password = file.readline()
-
+    
     message = MIMEMultipart("alternative")
-    message["Subject"] = "DEAL " + siteName + " " + deal
+    message["Subject"] = "DEAL" + siteName + " " + deal
     message["From"] = sender_email
     message["To"] = receiver_email
 
     text = """\
-    {}""".format(website)
+        {}""".format(website)
 
     html = """\
-    <html>
-    <body>
-        <p>Deal of the day at
-        <a href="{}">{}</a>
-        is {}
-        <a href="{}">Link to bgg page</a>. {} has a rating of {}
-        <br></br>
-        <br><a href="{}"><img src="cid:image1"></a><br>
-        </p>
-    </body>
-    </html>
+        <html>
+        <body>
+            <p>Deal of the day at
+            <a href="{}">{}</a>
+            is {}
+            <a href="{}">Link to bgg page</a>. {} has a rating of {}
+            <br></br>
+            <br><a href="{}"><img src="cid:image1"></a><br>
+            </p>
+        </body>
+        </html>
     """.format(website, siteName, deal, bgg_url, deal, rating, website)
 
     part1 = MIMEText(text, "plain")
@@ -85,28 +84,23 @@ def email(website, deal, pic, rating, bgg_url):
     message.attach(part1)
     message.attach(part2)
 
-    # Open PDF file in binary mode
     with open(pic, "rb") as attachment:
-        # Add file as application/octet-stream
-        # Email client can usually download this automatically as attachment
         msgImage = MIMEImage(attachment.read())
 
-    # Define the image's ID as referenced above
-    msgImage.add_header('Content-ID', '<image1>')
+    msgImage.add_header("Contend-ID", "<image1>")
     message.attach(msgImage)
 
-    # Convert message to string
     text = message.as_string()
 
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+    with smtblib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 
 def update_csv(update):
     print("updating csv")
     with open("sites.csv", "w+") as file:
-        writer = csv.writer(file, delimiter= ",")
+        writer = csv.writer(file, delimiter=",")
         for line in update:
             writer.writerow(line)
 
@@ -117,20 +111,22 @@ def bgg_lookup(name):
     gameId = 1
 
     try:
-        with open(corpusname, 'r') as corpus:
-                data = json.load(corpus)
-                games = data.keys()
-                match = difflib.get_close_matches(name, games)[0]
+        with open(corpusname, "r") as corpus:
+            data = json.load(corpus)
+            games = data.keys()
+            match = difflib.get_close_matches(name, games)[0]
 
-                if len(match) > 0:
-                    index = data[match]
+            if len(match) > 0:
+                index = data[match]
 
-                    with open("/Volumes/Storage/bgg_games/" + str(index) + ".json") as game:
-                        game_data = json.load(game)
-                        rating = game_data["bggRating"]
-                        gameId = game_data["gameId"]
+                with open("/Volumes/Storage/bgg_games/" + str(index) + ".json") as game:
+                    game_data = json.load(game)
+                    rating = game_data["bggRating"]
+                    gameId = game_data["gameId"]
+    except:
+        print("unable to find lookup")
 
-    return rating, "https://boardgamegeek.com/boardgame/" + str(gameId) # THIS IS THE CURSED LINE
+    return rating, "https://boardgamegeek.com/boardgame/" + str(gameId)
 
 def main():
     now = datetime.now()
@@ -170,7 +166,7 @@ def main():
                 rating, bgg_url = bgg_lookup(returnedName)
 
                 print("Sending email")
-                email(location, returnedName, picName, rating, bgg_url)
+                email_deal(location, returnedName, picName, rating, bgg_url)
 
             row += 1
 
