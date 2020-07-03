@@ -11,6 +11,7 @@ from datetime import datetime
 
 def listener(driver, url, selector):
     print("visiting " + url)
+
     try:
         driver.get(url)
         navigated = True
@@ -18,6 +19,8 @@ def listener(driver, url, selector):
         print("unable to navigate to site")
     
     location = url
+    deal = "Deal does not exist"
+
 
     if navigated:
         if url == "https://www.cardhaus.com/":
@@ -34,17 +37,18 @@ def listener(driver, url, selector):
             
             driver.get(href)
             location = driver.current_url
-        
-        deal = driver.find_element_by_css_selector(selector).text
-        deal = deal.replace("(Deal of hte Day)", "")
-        deal = deal.replace("(Add to cart to see price)", "")
-    else:
-        deal = "Site is down"
+
+        try:
+            deal = driver.find_element_by_css_selector(selector).text
+            deal = deal.replace("(Deal of the Day)", "")
+            deal = deal.replace("(Add to cart to see price)", "")
+        except:
+            print("Unable to find deal")
 
     return deal, location
 
 def email_deal(website, deal, pic, rating, bgg_url):
-    print("emailing for" + website)
+    print("emailing for " + website)
 
     port = 465 # For SSL
     smtp_server = "smtp.gmail.com"
@@ -57,7 +61,7 @@ def email_deal(website, deal, pic, rating, bgg_url):
         password = file.readline()
 
     message = MIMEMultipart("alternative")
-    message["Subject"] = "DEAL" + siteName + " " + deal
+    message["Subject"] = "DEAL " + siteName + " " + deal
     message["From"] = sender_email
     message["To"] = receiver_email
 
@@ -67,12 +71,13 @@ def email_deal(website, deal, pic, rating, bgg_url):
     html = """\
         <html>
         <body>
-            <p>Deal of the day at
-            <a href="{}">{}</a>
-            is {}
-            <a href="{}">Link to bgg page</a>. {} has a rating of {}
-            <br></br>
-            <br><a href="{}"><img src="cid:image1"></a><br>
+            <p>
+                Deal of the day at
+                <a href="{}">{}</a>
+                is {}
+                <a href="{}">Link to bgg page</a>. {} has a rating of {}
+                <br></br>
+                <br><a href="{}"><img src="cid:image1"></a><br>
             </p>
         </body>
         </html>
@@ -95,7 +100,7 @@ def email_deal(website, deal, pic, rating, bgg_url):
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message.as_string())
+        server.sendmail(sender_email, receiver_email, text)
 
 def update_csv(update):
     print("updating csv")
